@@ -21,41 +21,41 @@ class TransformBroadcaster(Node):
             PointCloud2,
             '/velodyne_points',
             self.velodyne_callback,
-            100
+            10
         )
 
         self.imu_subscriber = self.create_subscription(
             Imu,
             '/novatel/oem7/imu/data_raw',
             self.imu_callback,
-            100
+            10
         )
 
         # Create publishers
         self.new_points_publisher = self.create_publisher(
             PointCloud2,
             '/velodyne_points',
-            100
+            10
         )
 
         self.imu_data_publisher = self.create_publisher(
             Imu,
             '/imu/data',
-            100
+            10
         )
 
         self.odom_subscriber = self.create_subscription(
             Odometry,
             '/novatel/oem7/odom',
             self.odom_callback,
-            100
+            10
         )
 
         self.fix_subscriber = self.create_subscription(
             NavSatFix,
             '/novatel/oem7/fix',
             self.fix_callback,
-            100
+            10
         )
 
         # self.odom_publisher = self.create_publisher(Odometry, '/novatel/odom', 10)
@@ -83,9 +83,9 @@ class TransformBroadcaster(Node):
         t_base_link_camera_init.header.stamp = self.get_clock().now().to_msg()
         t_base_link_camera_init.header.frame_id = 'base_link'
         t_base_link_camera_init.child_frame_id = 'camera_init'
-        t_base_link_camera_init.transform.translation.x = 1.82
-        t_base_link_camera_init.transform.translation.y = 0.02
-        t_base_link_camera_init.transform.translation.z = 0.91  # Example value
+        t_base_link_camera_init.transform.translation.x = 0.0
+        t_base_link_camera_init.transform.translation.y = 0.0
+        t_base_link_camera_init.transform.translation.z = 1.0  # Example value
         t_base_link_camera_init.transform.rotation.x = 0.0
         t_base_link_camera_init.transform.rotation.y = 0.0
         t_base_link_camera_init.transform.rotation.z = 0.0
@@ -97,9 +97,9 @@ class TransformBroadcaster(Node):
         t_base_link_velodyne_base_link.header.stamp = self.get_clock().now().to_msg()
         t_base_link_velodyne_base_link.header.frame_id = 'base_link'
         t_base_link_velodyne_base_link.child_frame_id = 'velodyne_base_link'
-        t_base_link_velodyne_base_link.transform.translation.x = 1.14
+        t_base_link_velodyne_base_link.transform.translation.x = 0.0
         t_base_link_velodyne_base_link.transform.translation.y = 0.0
-        t_base_link_velodyne_base_link.transform.translation.z = 1.81
+        t_base_link_velodyne_base_link.transform.translation.z = 0.0
         t_base_link_velodyne_base_link.transform.rotation.x = 0.0
         t_base_link_velodyne_base_link.transform.rotation.y = 0.0
         t_base_link_velodyne_base_link.transform.rotation.z = 0.0
@@ -125,9 +125,9 @@ class TransformBroadcaster(Node):
         t_base_link_imu_link.header.stamp = self.get_clock().now().to_msg()
         t_base_link_imu_link.header.frame_id = 'base_link'
         t_base_link_imu_link.child_frame_id = 'imu_link'
-        t_base_link_imu_link.transform.translation.x = 0.49
-        t_base_link_imu_link.transform.translation.y = 0.52
-        t_base_link_imu_link.transform.translation.z = 1.36
+        t_base_link_imu_link.transform.translation.x = 0.0
+        t_base_link_imu_link.transform.translation.y = 0.0
+        t_base_link_imu_link.transform.translation.z = 0.0
         t_base_link_imu_link.transform.rotation.x = 0.0
         t_base_link_imu_link.transform.rotation.y = 0.0
         t_base_link_imu_link.transform.rotation.z = 0.0

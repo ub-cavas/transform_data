@@ -1,4 +1,3 @@
-
 from setuptools import find_packages, setup
 
 package_name = 'transform_data'
@@ -11,7 +10,6 @@ setup(
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
-        ('share/' + package_name + '/launch', ['launch/remap_data.launch.py']),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
@@ -29,4 +27,3 @@ setup(
         ],
     },
 )
-

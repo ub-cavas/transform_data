@@ -1,28 +1,31 @@
 import rclpy
+import struct
+import numpy as np
 from geodesy import utm
 from rclpy.node import Node
 from sensor_msgs.msg import NavSatFix
 
 from geometry_msgs.msg import PoseStamped, PoseWithCovarianceStamped
 from velodyne_msgs.msg import VelodyneScan
-from sensor_msgs.msg import Imu, PointCloud2
+from sensor_msgs.msg import Imu, PointCloud2, PointField
+from sensor_msgs_py import point_cloud2 as pc2
 
 class TopicRepublisher(Node):
     def __init__(self):
         super().__init__('topic_republisher')
-
+        # print("Hello")
         # Subscribers
         self.sub_fix = self.create_subscription(
             NavSatFix,
             '/novatel/oem7/fix',
             self.listener_callback_fix,
-            100
+            10
         )
         self.sub_imu_raw = self.create_subscription(
             Imu,
             '/novatel/oem7/imu/data_raw',
             self.listener_callback_imu,
-            100
+            10
         )
         # self.sub_odom = self.create_subscription(
         #     PoseWithCovarianceStamped,
@@ -30,12 +33,12 @@ class TopicRepublisher(Node):
         #     self.listener_callback_odom,
         #     10
         # )
-        self.sub_lidar = self.create_subscription(
-            PointCloud2,
-            '/velodyne_points',
-            self.listener_callback_lidar,
-            100
-        )
+        # self.sub_lidar = self.create_subscription(
+        #     PointCloud2,
+        #     '/velodyne_points',
+        #     self.listener_callback_lidar,
+        #     10
+        # )
         
 
         self.origin_lat = 42.99263738471643
@@ -45,51 +48,51 @@ class TopicRepublisher(Node):
         self.pub_pose = self.create_publisher(
             PoseStamped,
             '/sensing/gnss/pose',
-            100
+            10
         )
         self.pub_pose_with_cov = self.create_publisher(
             PoseWithCovarianceStamped,
             '/sensing/gnss/pose_with_covariance',
-            100
+            10
         )
         self.pub_imu_data = self.create_publisher(
             Imu,
             '/sensing/imu/imu_data',
-            100
+            10
         )
         self.pub_imu_raw = self.create_publisher(
             Imu,
             '/sensing/imu/tamagawa/imu_raw',
-            100
+            10
         )
-        self.pub_pointcloud_raw = self.create_publisher(
-            PointCloud2,
-            '/sensing/lidar/top/pointcloud_raw',
-            100
-        )
-        self.pub_pointcloud_raw_ex = self.create_publisher(
-            PointCloud2,
-            '/sensing/lidar/top/pointcloud_raw_ex',
-            100
-        )
+        # self.pub_pointcloud_raw = self.create_publisher(
+        #     PointCloud2,
+        #     '/sensing/lidar/top/pointcloud_raw',
+        #     10
+        # )
+        # self.pub_pointcloud_raw_ex = self.create_publisher(
+        #     PointCloud2,
+        #     '/sensing/lidar/top/pointcloud_raw_ex',
+        #     10
+        # )
 
-        self.pub_pointcloud_filtered = self.create_publisher(
-            PointCloud2,
-            '/sensing/lidar/top/outlier_filtered/pointcloud',
-            100
-        )
+        # self.pub_pointcloud_filtered = self.create_publisher(
+        #     PointCloud2,
+        #     '/sensing/lidar/top/outlier_filtered/pointcloud',
+        #     10
+        # )
 
-        self.subscription = self.create_subscription(
-            VelodyneScan,
-            '/velodyne_packets',
-            self.listener_callback_packets,
-            100)
+        # self.subscription = self.create_subscription(
+        #     VelodyneScan,
+        #     '/velodyne_packets',
+        #     self.listener_callback_packets,
+        #     10)
         
-        self.publisher_packets = self.create_publisher(
-            VelodyneScan,
-            '/sensing/lidar/top/velodyne_packets',
-            100)
-        
+        # self.publisher_packets = self.create_publisher(
+        #     VelodyneScan,
+        #     '/sensing/lidar/top/velodyne_packets',
+        #     10)
+        # print("bye")
 
     def conversion(self, lat, long, alt):
         ref = utm.fromLatLong(self.origin_lat, self.origin_long)
@@ -102,7 +105,7 @@ class TopicRepublisher(Node):
         return x+79897.390625, y+62360.640625, z
 
     def listener_callback_fix(self, msg):
-        self.get_logger().info('Received /novatel/oem7/fix')
+        # self.get_logger().info('Received /novatel/oem7/fix')
         lat = msg.latitude
         long = msg.longitude
         alt = msg.altitude
@@ -140,7 +143,7 @@ class TopicRepublisher(Node):
         
 
     def listener_callback_imu(self, msg):
-        self.get_logger().info('Received /novatel/oem7/imu/data_raw')
+        # self.get_logger().info('Received /novatel/oem7/imu/data_raw')
         
         msg1 =msg
         msg1.header.stamp = self.get_clock().now().to_msg()
@@ -153,26 +156,52 @@ class TopicRepublisher(Node):
     #     self.get_logger().info('Received /novatel/oem7/odom')
     #     self.pub_pose_with_cov.publish(msg)
 
-    def listener_callback_lidar(self, msg):
-        self.get_logger().info('Received /velodyne_points')
-        # print("here")
-        msg.header.stamp = self.get_clock().now().to_msg()
-        msg1 = msg
-        msg1.header.frame_id = "sensor_kit_base_link"
-        msg.header.frame_id = 'sensor_kit_base_link'
-        # self.pub_pointcloud_raw.publish(msg)
-        self.pub_pointcloud_filtered.publish(msg1)
-        # self.pub_pointcloud_raw_ex.publish(msg)
+    # def listener_callback_lidar(self, msg):
+    #     self.get_logger().info('Received /velodyne_points')
+    #     # print("here")
+    #     msg.header.stamp = self.get_clock().now().to_msg()
+    #     msg1 = msg
+    #     msg1.header.frame_id = "sensor_kit_base_link"
+    #     msg.header.frame_id = 'sensor_kit_base_link'
+    #     # self.pub_pointcloud_raw.publish(msg)
+    #     self.pub_pointcloud_filtered.publish(msg1)
+    #     # self.pub_pointcloud_raw_ex.publish(msg)
 
-    def listener_callback_packets(self, msg):
-        self.get_logger().info('Received Velodyne packet, republishing...')
-        self.publisher_packets.publish(msg)
+    def listener_callback_lidar(self, msg):
+        # self.get_logger().info('Received /velodyne_points')
+
+        # Update header timestamp and frame_id
+        msg.header.stamp = self.get_clock().now().to_msg()
+        msg.header.frame_id = "sensor_kit_base_link"
+
+        # Extract points from PointCloud2
+        points = []
+        for point in pc2.read_points(msg, field_names=("x", "y", "z"), skip_nans=True):
+            points.append([point[0], point[1], point[2]])
+
+        points = np.array(points)
+
+        # Filter out points within 1.5 meters
+        distances = np.linalg.norm(points, axis=1)  # Compute distance from origin
+        filtered_points = points[distances >= 3.0]  # Keep points beyond 1.5 meters
+
+        # Create a new PointCloud2 message with filtered points
+        filtered_msg = pc2.create_cloud_xyz32(msg.header, filtered_points)
+
+        # Publish the filtered point cloud
+        self.pub_pointcloud_filtered.publish(filtered_msg)
+
+    # def listener_callback_packets(self, msg):
+    #     # self.get_logger().info('Received Velodyne packet, republishing...')
+    #     # self.publisher_packets.publish(msg)
 
 
 def main(args=None):
+    # print("Here")
     rclpy.init(args=args)
     node = TopicRepublisher()
     rclpy.spin(node)
+    
     node.destroy_node()
     rclpy.shutdown()
 
