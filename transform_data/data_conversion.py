@@ -5,6 +5,7 @@ from geodesy import utm
 from rclpy.node import Node
 from sensor_msgs.msg import NavSatFix
 
+from rclpy.qos import QoSProfile, ReliabilityPolicy, HistoryPolicy, DurabilityPolicy
 from geometry_msgs.msg import PoseStamped, PoseWithCovarianceStamped
 from velodyne_msgs.msg import VelodyneScan
 from sensor_msgs.msg import Imu, PointCloud2, PointField
@@ -33,12 +34,19 @@ class TopicRepublisher(Node):
         #     self.listener_callback_odom,
         #     10
         # )
-        # self.sub_lidar = self.create_subscription(
-        #     PointCloud2,
-        #     '/velodyne_points',
-        #     self.listener_callback_lidar,
-        #     10
-        # )
+
+        self.subscriber_qos = QoSProfile(
+            depth=10,
+            reliability=ReliabilityPolicy.BEST_EFFORT,
+            history=HistoryPolicy.KEEP_LAST,
+            durability=DurabilityPolicy.VOLATILE
+)
+        self.sub_lidar = self.create_subscription(
+            PointCloud2,
+            '/velodyne_points',
+            self.listener_callback_lidar,
+            self.subscriber_qos
+        )
         
 
         # self.origin_lat = 42.99263738471643
@@ -75,11 +83,11 @@ class TopicRepublisher(Node):
         #     '/sensing/lidar/top/pointcloud_raw',
         #     10
         # )
-        # self.pub_pointcloud_raw_ex = self.create_publisher(
-        #     PointCloud2,
-        #     '/sensing/lidar/top/pointcloud_raw_ex',
-        #     10
-        # )
+        self.pub_pointcloud_raw_ex = self.create_publisher(
+            PointCloud2,
+            '/sensing/lidar/top/pointcloud_raw_ex',
+            10
+        )
 
         # self.pub_pointcloud_filtered = self.create_publisher(
         #     PointCloud2,
@@ -152,8 +160,8 @@ class TopicRepublisher(Node):
         
         imu_msg = msg
         #msg1.header.stamp = 0
-        msg.header.stamp.sec = 0
-        msg.header.stamp.nanosec = 0
+        #msg.header.stamp.sec = 0
+        #msg.header.stamp.nanosec = 0
         imu_msg.header.frame_id ='tamagawa/imu_link'
         # self.pub_imu_data.publish(msg1)
         self.pub_imu_raw.publish(msg)
@@ -163,16 +171,15 @@ class TopicRepublisher(Node):
     #     self.get_logger().info('Received /novatel/oem7/odom')
     #     self.pub_pose_with_cov.publish(msg)
 
-    # def listener_callback_lidar(self, msg):
-    #     self.get_logger().info('Received /velodyne_points')
-    #     # print("here")
-    #     msg.header.stamp = self.get_clock().now().to_msg()
-    #     msg1 = msg
-    #     msg1.header.frame_id = "sensor_kit_base_link"
-    #     msg.header.frame_id = 'sensor_kit_base_link'
-    #     # self.pub_pointcloud_raw.publish(msg)
-    #     self.pub_pointcloud_filtered.publish(msg1)
-    #     # self.pub_pointcloud_raw_ex.publish(msg)
+    def listener_callback_lidar(self, msg):
+        # self.get_logger().info('Received /velodyne_points')
+        # print("here")
+        # msg.header.stamp = self.get_clock().now().to_msg()
+        msg.header.frame_id = 'velodyne_top'
+        # msg.header.frame_id = 'sensor_kit_base_link'
+        # self.pub_pointcloud_raw.publish(msg)
+        # self.pub_pointcloud_filtered.publish(msg)
+        self.pub_pointcloud_raw_ex.publish(msg)
 
     # def listener_callback_lidar(self, msg):
     #     # self.get_logger().info('Received /velodyne_points')
